@@ -1,0 +1,20 @@
+# Paths 数据集和模型的路径
+DATA_PATH: data/yamaha_v0/
+LOAD_MODEL_PATH: runs/mobilenetv3large_v1.50.pt # Comment this out to autoname models
+
+
+# Hyperparameters
+#每个类别的损失权重，9个类别对应9个权重，60.3802很大，说明这个类别数量比较少。0.30则反之
+CLASS_WEIGHTS: [3.8838, 0.7387, 0.8316, 0.7312, 60.3802, 12.8362, 1.7804, 0.3081, 1.0905]
+#训练时输入图像裁剪成513*513
+CROP_SIZE: 513
+#训练集一共训练50轮
+NUM_EPOCHS: 50
+#分割类别是9类
+NUM_MASK_CHANNELS: 9
+#batch_size 每次训练送入16张图片
+BATCH_SIZE: 16
+#学习率，学习率大学得快不稳定，小的学习慢，但更稳
+LEARNING_RATE: 1e-5
+#选择模型的主干网络为MobileNetv3-large
+BACKBONE: mobilenetv3large # mobilenetv3large, resnet50, resnet101
