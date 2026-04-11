@@ -22,15 +22,15 @@ LABEL_NAMES = [
     "sky",
 ]
 COLORS = [
-    "#000000",  # unknown - black 黑色
-    "#8B4513",  # smooth trail - brown 棕色
-    "#D2691E",  # traversable gras - chocolate 巧克力色
-    "#F4A460",  # rough trail - sandy brown 沙棕色
-    "#90EE90",  # non-traversable - light green 浅绿色
-    "#228B22",  # obstacle - forest  森林绿
-    "#FF0000",  # low vegetation - red 红色
-    "#006400",  # high vegetation - dark green 深绿色
-    "#87CEEB",  # sky - sky blue 天蓝色
+    "#000000",  # unknown - 黑色
+    "#D2B48C",  # smooth trail - 浅棕/土黄色（平整道路）
+    "#7CFC00",  # traversable gras - 亮绿色（可通行草地）
+    "#FF8C00",  # rough trail - 橙色（粗糙道路）
+    "#800080",  # non-traversable - 紫色（不可通行）
+    "#FF0000",  # obstacle - 红色（障碍物，警示性强）
+    "#9ACD32",  # low vegetation - 黄绿色（低矮植被）
+    "#006400",  # high vegetation - 深绿色（高植被）
+    "#87CEEB",  # sky - 天蓝色
 ]
 #把colors里的十六进制颜色，转换成0-255的RGB整数元组列表
 #外层 for h in COLORS 遍历每一个COLORS里的颜色字符串

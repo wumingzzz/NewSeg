@@ -1,5 +1,5 @@
 # Paths
-DATA_PATH: data/offroad.mp4
+DATA_PATH: data/test.mp4
 LOAD_MODEL_PATH: runs/mobilenetv3large_v1.50.pt # Comment this out to autoname models
 
 # Inference Parameters
