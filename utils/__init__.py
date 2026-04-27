@@ -9,6 +9,8 @@ from .utils import (
     display_example_pair,
     overlay_mask_cv2,
     vis_segmentation,
+    LABEL_NAMES,
+    RGB_COLORS
 )
 
 #当使用from utils import ...时 允许被导出的名字有哪些
@@ -18,4 +20,6 @@ __all__ = [
     "vis_segmentation",
     "display_example_pair",
     "overlay_mask_cv2",
+    "LABEL_NAMES",
+    "RGB_COLORS"
 ]

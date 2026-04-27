@@ -10,24 +10,16 @@ import cv2
 import gradio as gr
 import numpy as np
 from PIL import Image
-
-
 from imageio_ffmpeg import get_ffmpeg_exe
-
-
-
-# ============================================================
-# 一、导入你项目里已经写好的模块
-# ============================================================
 from models import DeepLabWrapper
-from utils.utils import LABEL_NAMES, RGB_COLORS
+from utils import LABEL_NAMES, RGB_COLORS
 
 
-# 二、全局缓存：避免每点一次按钮都重新加载模型
+# 全局缓存：避免每点一次按钮都重新加载模型
 MODEL_CACHE: Dict[str, DeepLabWrapper] = {}
-# ============================================================
-# 三、工具函数
-# ============================================================
+
+# 一、工具函数
+# =============
 def resolve_model_path(model_path: str) -> Path:
     """
     把用户在界面中输入的模型路径，转换成绝对路径并检查是否存在。
@@ -324,11 +316,9 @@ def build_demo() -> gr.Blocks:
         gr.Markdown(
             """
             # 基于 DeepLab 的非结构化道路检测系统
-            这是一个基于 **NewSeg** 项目的中文 Gradio 交互界面。
-
-            你可以在这里完成：
-            - 单张图片语义分割
-            - 视频语义分割
+            可以在这里完成：
+            - 单张图片的语义分割
+            - 视频的语义分割
             - 分割结果可视化与类别统计
             """
         )

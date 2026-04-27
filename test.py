@@ -11,8 +11,8 @@ from utils import vis_segmentation  #vis_segmentation，这是可视化函数，
 with open("config/config.yaml", "r",encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
-image = Image.open(op.join(config["DATA_PATH"], "valid/iid000944/rgb.jpg"))
-mask = Image.open(op.join(config["DATA_PATH"], "valid/iid000944/labels.png"))
+image = Image.open(op.join(config["DATA_PATH"], "valid/iid000898/rgb.jpg"))
+mask = Image.open(op.join(config["DATA_PATH"], "valid/iid000898/labels.png"))
 
 model = DeepLabWrapper(model_path=config["LOAD_MODEL_PATH"])
 # 动态地把输入图像调整大小并裁剪成模型所需的尺寸

@@ -15,7 +15,7 @@ from torchvision.models.segmentation import (
     deeplabv3_resnet50,
     deeplabv3_resnet101,   #这些函数用来直接创建 DeepLabV3 模型。
 )
-from torchvision.models.segmentation.deeplabv3 import DeepLabHead #用来替换模型最后的分类头，让输出类别数适配你自己的数据集。
+from torchvision.models.segmentation.deeplabv3 import DeepLabHead #用来替换模型最后的分类头，让输出类别数适配自己的数据集。
 from torchvision.transforms import v2 #导入新版 transforms
 
 
