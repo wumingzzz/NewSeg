@@ -5,21 +5,6 @@
 #而不用写成from utils.dataset import get_dataloaders
 from .dataset import get_dataloaders
 from .trainer import Trainer
-from .drivable_area import (
-    HIGH_VEGETATION,
-    LOW_VEGETATION,
-    NON_TRAVERSABLE,
-    OBSTACLE,
-    ROUGH_TRAIL,
-    SKY,
-    SMOOTH_TRAIL,
-    TRAVERSABLE_GRASS,
-    UNKNOWN,
-    drivable_to_color,
-    mask_to_drivable,
-    overlay_drivable_mask,
-)
-
 from .utils import (
     display_example_pair,
     overlay_mask_cv2,
@@ -36,17 +21,5 @@ __all__ = [
     "display_example_pair",
     "overlay_mask_cv2",
     "LABEL_NAMES",
-    "RGB_COLORS",
-    "UNKNOWN",
-    "NON_TRAVERSABLE",
-    "ROUGH_TRAIL",
-    "SMOOTH_TRAIL",
-    "TRAVERSABLE_GRASS",
-    "LOW_VEGETATION",
-    "OBSTACLE",
-    "HIGH_VEGETATION",
-    "SKY",
-    "mask_to_drivable",
-    "drivable_to_color",
-    "overlay_drivable_mask"
+    "RGB_COLORS"
 ]
