@@ -9,8 +9,13 @@ from .utils import (
     display_example_pair,
     overlay_mask_cv2,
     vis_segmentation,
+    vis_traversability,
+    convert_mask_to_risk,
+    calculate_safety_score,
     LABEL_NAMES,
-    RGB_COLORS
+    RGB_COLORS,
+    RISK_NAMES,
+    RISK_COLORS
 )
 
 #当使用from utils import ...时 允许被导出的名字有哪些
@@ -18,8 +23,13 @@ __all__ = [
     "get_dataloaders",
     "Trainer",
     "vis_segmentation",
+    "vis_traversability",
+    "convert_mask_to_risk",
+    "calculate_safety_score",
     "display_example_pair",
     "overlay_mask_cv2",
     "LABEL_NAMES",
-    "RGB_COLORS"
+    "RGB_COLORS",
+    "RISK_NAMES",
+    "RISK_COLORS"
 ]

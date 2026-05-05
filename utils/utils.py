@@ -40,6 +40,149 @@ COLORS = [
 #最终RGB_COLORS变成列表如：[(255,0,0),()]这种
 RGB_COLORS = [tuple(int(c * 255) for c in to_rgb(h)) for h in COLORS]
 
+# 三类通行风险等级：0-可通行 1-谨慎通行 2-不可通行
+RISK_NAMES = [
+    "可通行",
+    "谨慎通行",
+    "不可通行",
+]
+RISK_COLORS = [
+    "#00B050",  # 可通行 - 绿色
+    "#FFC000",  # 谨慎通行 - 黄色
+    "#FF0000",  # 不可通行 - 红色
+]
+RGB_RISK_COLORS = [tuple(int(c * 255) for c in to_rgb(h)) for h in RISK_COLORS]
+
+
+def convert_mask_to_risk(mask: np.ndarray) -> np.ndarray:
+    """把9类语义分割mask转换成3类通行风险图
+
+    Args:
+        mask: (np.ndarray)
+            模型预测得到的语义分割mask，每个像素值为0-8之间的类别编号
+
+    Returns:
+        np.ndarray: 风险等级图，0表示可通行，1表示谨慎通行，2表示不可通行
+    """
+    risk_map = np.full(mask.shape, 2, dtype=np.uint8)  # 默认都先按不可通行处理
+
+    # smooth trail、rough trail 按可通行处理
+    risk_map[np.isin(mask, [1, 3])] = 0
+    # traversable grass、low vegetation 按谨慎通行处理
+    risk_map[np.isin(mask, [2, 6])] = 1
+    # unknown、non-traversable、obstacle、high vegetation、sky 保持不可通行
+
+    return risk_map
+
+
+def calculate_safety_score(mask: np.ndarray) -> dict:
+    """根据语义分割结果统计越野场景通行风险占比
+
+    Args:
+        mask: (np.ndarray)
+            模型预测得到的语义分割mask
+
+    Returns:
+        dict: 包含风险等级占比和有效地面像素数量
+    """
+    risk_map = convert_mask_to_risk(mask)
+    valid_area = mask != 8  # sky不参与评分，避免天空面积影响地面通行判断
+    valid_pixels = int(valid_area.sum())
+
+    if valid_pixels == 0:
+        safe_ratio = 0.0
+        caution_ratio = 0.0
+        danger_ratio = 0.0
+    else:
+        safe_ratio = float(((risk_map == 0) & valid_area).sum() / valid_pixels)
+        caution_ratio = float(((risk_map == 1) & valid_area).sum() / valid_pixels)
+        danger_ratio = float(((risk_map == 2) & valid_area).sum() / valid_pixels)
+
+    return {
+        "safe_ratio": safe_ratio,
+        "caution_ratio": caution_ratio,
+        "danger_ratio": danger_ratio,
+        "valid_pixels": valid_pixels,
+    }
+
+
+def colorize_risk_map(risk_map: np.ndarray) -> np.ndarray:
+    """把三类风险图转换成彩色图，方便显示和叠加"""
+    color_risk_map = np.zeros((risk_map.shape[0], risk_map.shape[1], 3), dtype=np.uint8)
+    for idx, rgb in enumerate(RGB_RISK_COLORS):
+        color_risk_map[risk_map == idx] = rgb
+    return color_risk_map
+
+
+def vis_traversability(image: np.ndarray, mask: np.ndarray) -> None:
+    """可视化越野场景通行风险等级结果，并保存到本地图片
+
+    Args:
+        image: (np.ndarray)
+            输入模型的RGB图像
+        mask: (np.ndarray)
+            模型预测得到的语义分割mask
+    """
+    plt.rcParams["font.sans-serif"] = ["SimHei", "Microsoft YaHei", "Arial Unicode MS"]
+    plt.rcParams["axes.unicode_minus"] = False
+
+    image = np.array(image).astype(np.uint8)
+    risk_map = convert_mask_to_risk(mask)
+    color_risk_map = colorize_risk_map(risk_map)
+    score_info = calculate_safety_score(mask)
+
+    overlay = image.astype(np.float32) * 0.55 + color_risk_map.astype(np.float32) * 0.45
+    overlay = np.clip(overlay, 0, 255).astype(np.uint8)
+
+    semantic_cmap = ListedColormap(COLORS[: len(LABEL_NAMES)])
+    risk_cmap = ListedColormap(RISK_COLORS)
+
+    plt.figure(figsize=(22, 5))
+    grid_spec = gridspec.GridSpec(
+        1,
+        5,
+        width_ratios=[5, 5, 5, 5, 4],
+    )
+
+    plt.subplot(grid_spec[0])
+    plt.imshow(image)
+    plt.axis("off")
+    plt.title("Input Image")
+
+    plt.subplot(grid_spec[1])
+    plt.imshow(mask, cmap=semantic_cmap, vmin=0, vmax=len(LABEL_NAMES) - 1)
+    plt.axis("off")
+    plt.title("Semantic Mask")
+
+    plt.subplot(grid_spec[2])
+    plt.imshow(risk_map, cmap=risk_cmap, vmin=0, vmax=len(RISK_NAMES) - 1)
+    plt.axis("off")
+    plt.title("Risk Map")
+
+    plt.subplot(grid_spec[3])
+    plt.imshow(overlay)
+    plt.axis("off")
+    plt.title("Risk Overlay")
+
+    plt.subplot(grid_spec[4])
+    plt.axis("off")
+    info_text = (
+        f"可通行区域: {score_info['safe_ratio'] * 100:.2f}%\n"
+        f"谨慎通行区域: {score_info['caution_ratio'] * 100:.2f}%\n"
+        f"不可通行区域: {score_info['danger_ratio'] * 100:.2f}%\n"
+        f"有效地面像素: {score_info['valid_pixels']}"
+    )
+    plt.text(0.0, 0.95, info_text, va="top", fontsize=13)
+
+    legend_elements = []
+    for risk_name, color in zip(RISK_NAMES, RISK_COLORS):
+        legend_elements.append(patches.Rectangle((0, 0), 1, 1, facecolor=color, label=risk_name))
+    plt.legend(handles=legend_elements, loc="lower left", frameon=False, title="风险等级")
+
+    plt.grid("off")
+    plt.savefig("traversability_evaluation.png", bbox_inches="tight", pad_inches=0.1)
+    plt.close()
+
 
 def vis_segmentation(image: np.ndarray, mask: np.ndarray) -> None:
     """把输入图像、分割 mask、叠加结果和图例一起可视化
