@@ -2,6 +2,7 @@
 """这个文件是用来训练 DeepLab 模型的类"""
 
 import copy   #深拷贝一份模型权重，用来保存最优模型参数
+import os
 import time   #时间模块，用来记录训练的各种时间
 from typing import Tuple #导入类型注解
 
@@ -70,6 +71,8 @@ class Trainer:
         #先把当前模型参数完整复制一份，作为“目前最优模型权重”的初始值,保存的是参数字典state_dict。
         best_model_wts = copy.deepcopy(self.deeplab.model.state_dict())
         best_mean_iou = 0.0 #当前最好的验证 mIoU，初始设为 0
+        best_gds = 0.0
+        best_epoch = 0
         self.deeplab.model.to(device) #把模型搬到刚才选定的设备上。
 
         scaler = GradScaler()  #创建梯度缩放器，用于混合精度训练。
@@ -160,6 +163,8 @@ class Trainer:
 
                     if epoch_mean_iou > best_mean_iou:  #如果当前验证集 mIoU 比历史最好值还高
                         best_mean_iou = epoch_mean_iou  #就更新“最佳 mIoU”
+                        best_gds = epoch_gds
+                        best_epoch = epoch + 1
                         best_model_wts = copy.deepcopy(self.deeplab.model.state_dict())#把当前模型权重深拷贝保存下来
             print()
 
@@ -173,8 +178,16 @@ class Trainer:
         # 保存模型
         model_path = self.save_model_path or f"runs/{self.deeplab.backbone}_v1.{self.num_epochs}.pt"
         self.deeplab.save_model(model_path)
+        model_size_mb = os.path.getsize(model_path) / (1024 * 1024) if os.path.exists(model_path) else 0.0
 
         if self.logger:
+            self.logger.summary["best_valid_mean_iou"] = best_mean_iou
+            self.logger.summary["best_epoch"] = best_epoch
+            self.logger.summary["best_valid_gds"] = best_gds
+            self.logger.summary["training_time_seconds"] = time_elapsed
+            self.logger.summary["training_time_minutes"] = time_elapsed / 60
+            self.logger.summary["final_model_path"] = model_path
+            self.logger.summary["model_size_mb"] = model_size_mb
             self.logger.finish() #结束日志
 
         return self.deeplab, val_mean_iou_history

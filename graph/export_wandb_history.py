@@ -1,26 +1,62 @@
-import wandb
+"""从 wandb 导出多个骨干网络的训练历史，用于论文画图"""
+
+from pathlib import Path
+
 import pandas as pd
+import wandb
+
 
 ENTITY = "a3071093490-k"
 PROJECT = "offroad-1"
-RUN_ID = "vsyc679f"
 
-api = wandb.Api()
-run = api.run(f"{ENTITY}/{PROJECT}/{RUN_ID}")
+# 训练完不同 backbone 后，把对应的 wandb run id 填到这里。
+# 例如：{"mobilenetv3large": "vsyc679f", "resnet50": "xxxxxxx", "resnet101": "yyyyyyy"}
+RUN_IDS = {
+    "mobilenetv3large": "vsyc679f",
+    "resnet50": "",
+    "resnet101": "",
+}
+
+KEEP_COLS = [
+    "epoch",
+    "train_loss",
+    "valid_loss",
+    "train_mean_iou",
+    "valid_mean_iou",
+    "train_gds",
+    "valid_gds",
+]
 
 
-rows = list(run.scan_history())
-df = pd.DataFrame(rows)
+def export_one_run(api: wandb.Api, backbone: str, run_id: str) -> None:
+    """导出一个 backbone 对应的 wandb 训练历史"""
+    if not run_id:
+        print(f"{backbone} 没有填写 run id，跳过。")
+        return
 
-print("原始列名：", df.columns.tolist())
-print(df.head())
+    run = api.run(f"{ENTITY}/{PROJECT}/{run_id}")
+    rows = list(run.scan_history())
+    df = pd.DataFrame(rows)
 
-# 只保留你论文需要的列
-keep_cols = ["epoch", "train_loss", "valid_loss", "train_mean_iou", "valid_mean_iou"]
-keep_cols = [c for c in keep_cols if c in df.columns]
+    keep_cols = [c for c in KEEP_COLS if c in df.columns]
+    if not keep_cols:
+        print(f"{backbone} 没有找到可导出的训练指标，跳过。")
+        return
 
-df = df[keep_cols]
-df.to_csv("wandb_history_raw.csv", index=False, encoding="utf-8-sig")
+    df = df[keep_cols]
+    output_path = Path(__file__).resolve().parent / f"{backbone}_history.csv"
+    df.to_csv(output_path, index=False, encoding="utf-8-sig")
 
-print("导出完成：wandb_history_raw.csv")
-print(df.head(10))
+    print(f"{backbone} 导出完成：{output_path}")
+    print(df.head(10))
+
+
+def main() -> None:
+    """脚本入口"""
+    api = wandb.Api()
+    for backbone, run_id in RUN_IDS.items():
+        export_one_run(api, backbone, run_id)
+
+
+if __name__ == "__main__":
+    main()
