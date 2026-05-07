@@ -29,3 +29,6 @@ graph/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Agent instruction files
+AGENTS.md
