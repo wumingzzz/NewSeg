@@ -12,11 +12,16 @@ import numpy as np
 from PIL import Image
 from imageio_ffmpeg import get_ffmpeg_exe
 from models import DeepLabWrapper
-from utils import LABEL_NAMES, RGB_COLORS
+from utils import LABEL_NAMES, RGB_COLORS, convert_mask_to_risk
 
 
 # 全局缓存：避免每点一次按钮都重新加载模型,这行定义了一个全局字典
 MODEL_CACHE: Dict[str, DeepLabWrapper] = {}
+RISK_RGB_COLORS = [
+    (0, 176, 80),    # 可通行 - 绿色
+    (255, 192, 0),   # 谨慎通行 - 黄色
+    (255, 0, 0),     # 不可通行 - 红色
+]
 
 # 一、工具函数
 
@@ -68,6 +73,18 @@ def convert_mask_to_color(mask: np.ndarray) -> np.ndarray:
         color_mask[mask == class_id] = rgb #当mask里面的值等于这个id的时候，就让他的颜色变成这个颜色
 
     return color_mask
+
+
+def convert_risk_to_color(risk_map: np.ndarray) -> np.ndarray:
+    """
+    把三类风险图转换成彩色图，0-可通行，1-谨慎通行，2-不可通行
+    """
+    color_risk_map = np.zeros((risk_map.shape[0], risk_map.shape[1], 3), dtype=np.uint8)
+
+    for risk_id, rgb in enumerate(RISK_RGB_COLORS):
+        color_risk_map[risk_map == risk_id] = rgb
+
+    return color_risk_map
 
 
 def blend_image_and_mask(image_rgb: np.ndarray, color_mask: np.ndarray, alpha: float) -> np.ndarray:
@@ -192,6 +209,9 @@ def infer_single_image(model_path: str, input_image: np.ndarray, alpha: float):
 
     color_mask = convert_mask_to_color(predicted_mask)  #mask转换成对应颜色
     overlay = blend_image_and_mask(processed_image, color_mask, alpha) #重叠图片
+    risk_map = convert_mask_to_risk(predicted_mask) #把9类语义mask转换成3类风险图
+    risk_color_map = convert_risk_to_color(risk_map) #三类风险图转换成颜色图
+    risk_overlay = blend_image_and_mask(processed_image, risk_color_map, alpha) #三类风险叠加图
 
     summary_table = summarize_mask(predicted_mask) #调用统计函数 创建统计表
 
@@ -200,7 +220,7 @@ def infer_single_image(model_path: str, input_image: np.ndarray, alpha: float):
         f"共识别出 {len(np.unique(predicted_mask))} 个类别。"
     )
 
-    return processed_image, color_mask, overlay, summary_table, status_text
+    return processed_image, color_mask, overlay, risk_color_map, risk_overlay, summary_table, status_text
 
 
 
@@ -374,6 +394,10 @@ def build_demo() -> gr.Blocks:
                     processed_image_output = gr.Image(label="模型输入图（已缩放/裁剪）")
                     color_mask_output = gr.Image(label="彩色分割结果")
                     overlay_output = gr.Image(label="分割叠加结果")
+                #创建一行，这行用来显示三类风险图
+                with gr.Row():
+                    risk_color_output = gr.Image(label="三类风险等级图")
+                    risk_overlay_output = gr.Image(label="三类风险叠加图")
                 #创建表格，用来显示类别结果
                 summary_table_output = gr.Dataframe(
                     headers=["类别ID", "类别名称", "像素数", "占比"],
@@ -389,6 +413,8 @@ def build_demo() -> gr.Blocks:
                         processed_image_output,
                         color_mask_output,
                         overlay_output,
+                        risk_color_output,
+                        risk_overlay_output,
                         summary_table_output,
                         image_status_box,
                     ],

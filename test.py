@@ -19,5 +19,5 @@ model = DeepLabWrapper(model_path=config["LOAD_MODEL_PATH"])
 image, mask = model.resize_and_crop_input(image, mask)
 predicted_mask = model(image)
 vis_segmentation(image, np.array(predicted_mask)) #把输入图像和预测结果做可视化显示。
-vis_traversability(image, np.array(predicted_mask)) #基于预测mask生成三类风险图和通行安全评分图。
+vis_traversability(image, np.array(predicted_mask)) #基于预测mask生成三类风险图。
 #这个vis_segmentation通常会做：显示原图--显示预测mask--生成overlay叠加图--显示图例legend

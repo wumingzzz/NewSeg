@@ -17,6 +17,9 @@ runs/
 
 # W&B logs
 wandb/
+*.csv
+*.png
+*.pdf
 
 # Graph outputs
 graph/
