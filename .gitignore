@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter / Kaggle
+.ipynb_checkpoints/
+__notebook__.ipynb
+__results__.html
+
+# Training outputs
+runs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+
+# W&B logs
+wandb/
+
+# Graph outputs
+graph/
+
+# IDE / system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
