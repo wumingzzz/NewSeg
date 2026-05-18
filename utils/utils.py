@@ -86,7 +86,7 @@ def calculate_safety_score(mask: np.ndarray) -> dict:
         dict: 包含风险等级占比和有效地面像素数量
     """
     risk_map = convert_mask_to_risk(mask)
-    valid_area = mask != 8  # sky不参与评分，避免天空面积影响地面通行判断
+    valid_area = mask != 8  # sky不参与评分
     valid_pixels = int(valid_area.sum())
 
     if valid_pixels == 0:
@@ -137,49 +137,49 @@ def vis_traversability(image: np.ndarray, mask: np.ndarray) -> None:
     semantic_cmap = ListedColormap(COLORS[: len(LABEL_NAMES)])
     risk_cmap = ListedColormap(RISK_COLORS)
 
-    plt.figure(figsize=(22, 5))
-    grid_spec = gridspec.GridSpec(
-        1,
-        5,
-        width_ratios=[5, 5, 5, 5, 4],
-    )
+    plt.figure(figsize=(10, 9))
 
-    plt.subplot(grid_spec[0])
+    plt.subplot(2, 2, 1)
     plt.imshow(image)
     plt.axis("off")
     plt.title("Input Image")
 
-    plt.subplot(grid_spec[1])
+    plt.subplot(2, 2, 2)
     plt.imshow(mask, cmap=semantic_cmap, vmin=0, vmax=len(LABEL_NAMES) - 1)
     plt.axis("off")
     plt.title("Semantic Mask")
 
-    plt.subplot(grid_spec[2])
+    plt.subplot(2, 2, 3)
     plt.imshow(risk_map, cmap=risk_cmap, vmin=0, vmax=len(RISK_NAMES) - 1)
     plt.axis("off")
     plt.title("Risk Map")
 
-    plt.subplot(grid_spec[3])
+    plt.subplot(2, 2, 4)
     plt.imshow(overlay)
     plt.axis("off")
     plt.title("Risk Overlay")
 
-    plt.subplot(grid_spec[4])
-    plt.axis("off")
-    info_text = (
-        f"可通行区域: {score_info['safe_ratio'] * 100:.2f}%\n"
-        f"谨慎通行区域: {score_info['caution_ratio'] * 100:.2f}%\n"
-        f"不可通行区域: {score_info['danger_ratio'] * 100:.2f}%\n"
-        f"有效地面像素: {score_info['valid_pixels']}"
-    )
-    plt.text(0.0, 0.95, info_text, va="top", fontsize=13)
-
     legend_elements = []
     for risk_name, color in zip(RISK_NAMES, RISK_COLORS):
         legend_elements.append(patches.Rectangle((0, 0), 1, 1, facecolor=color, label=risk_name))
-    plt.legend(handles=legend_elements, loc="lower left", frameon=False, title="风险等级")
+    plt.figlegend(
+        handles=legend_elements,
+        loc="lower left",
+        bbox_to_anchor=(0.06, 0.02),
+        ncol=3,
+        frameon=False,
+        title="风险等级",
+    )
+    info_text = (
+        f"可通行区域: {score_info['safe_ratio'] * 100:.2f}%    "
+        f"谨慎通行区域: {score_info['caution_ratio'] * 100:.2f}%\n"
+        f"不可通行区域: {score_info['danger_ratio'] * 100:.2f}%    "
+        f"有效地面像素: {score_info['valid_pixels']}"
+    )
+    plt.figtext(0.62, 0.045, info_text, ha="left", va="center", fontsize=10)
 
     plt.grid("off")
+    plt.tight_layout(rect=[0, 0.12, 1, 1])
     plt.savefig("traversability_evaluation.png", bbox_inches="tight", pad_inches=0.1)
     plt.close()
 

@@ -7,8 +7,10 @@
     <list default="true" id="ce5d2c13-3095-4c0d-90af-ddc3d0a2936f" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradio_app_transcode1.py" beforeDir="false" afterPath="$PROJECT_DIR$/gradio_app_transcode1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/deeplab_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/deeplab_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/segmentation_visualization.png" beforeDir="false" afterPath="$PROJECT_DIR$/segmentation_visualization.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/traversability_evaluation.png" beforeDir="false" afterPath="$PROJECT_DIR$/traversability_evaluation.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +50,9 @@
     &quot;Python.plot_wandb_curves.executor&quot;: &quot;Run&quot;,
     &quot;Python.test.executor&quot;: &quot;Run&quot;,
     &quot;Python.utils.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualize_deeplabv3_architecture.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualize_model_case_comparison.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualize_train_transforms.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;
   }

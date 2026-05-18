@@ -58,7 +58,7 @@ class DeepLabWrapper(pl.LightningModule):
         if self.cuda:
             self.model.to("cuda")                  #如果有 GPU，就把模型搬到 GPU 上。
 
-    #用于测试的图像调整函数
+    #用于test等的图像调整函数
     def resize_and_crop_input(
         self, image: Image.Image, mask: Optional[Image.Image] = None
     ) -> Image.Image | Tuple[Image.Image, Image.Image]:
